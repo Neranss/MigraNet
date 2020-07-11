@@ -180,11 +180,15 @@ public class EventInfoActivity extends AppCompatActivity {
                         JSONArray users_json= answer.getJSONArray("users");
                         String[] users= new String[users_json.length()];
                         is_member = false;
+
+                        Log.v(null,user_id);
+                        Log.v(null,users_json.toString());
                         for (int i=0;i<users_json.length();i++){
                                 if (users_json.getJSONObject(i).getString("user_id")==user_id){
                                     is_member=true;
                                 }
                         }
+                        Log.v(null,is_member.toString());
                         if (is_member){
                             message_view.setEnabled(true);
                             send_button.setText("Send");
