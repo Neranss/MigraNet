@@ -25,4 +25,8 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, EventsActivity.class);
         startActivity(intent);
     }
+    public void goto_friends(View view){
+        Intent intent = new Intent(MainActivity.this, FindFriendsActivity.class);
+        startActivity(intent);
+    }
 }

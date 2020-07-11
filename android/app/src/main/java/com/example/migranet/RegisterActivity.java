@@ -2,6 +2,7 @@ package com.example.migranet;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -140,5 +141,9 @@ public class RegisterActivity extends AppCompatActivity {
 
         //Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
         //startActivity(intent);
+    }
+    public void goto_home(View view){
+        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+        startActivity(intent);
     }
 }

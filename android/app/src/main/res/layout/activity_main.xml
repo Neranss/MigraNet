@@ -10,6 +10,7 @@
         android:id="@+id/friends_button"
         android:layout_width="118dp"
         android:layout_height="107dp"
+        android:onClick="goto_friends"
         app:layout_constraintEnd_toEndOf="@+id/favorites_button"
         app:layout_constraintTop_toTopOf="@+id/settings_button"
         app:srcCompat="@android:drawable/ic_menu_myplaces" />
@@ -22,21 +23,19 @@
         app:layout_constraintEnd_toStartOf="@+id/friends_button"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/help_button"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.846"
+        app:layout_constraintTop_toBottomOf="@+id/events_button"
         app:srcCompat="@android:drawable/ic_menu_manage" />
 
     <ImageView
         android:id="@+id/events_button"
         android:layout_width="118dp"
         android:layout_height="107dp"
-        android:layout_marginBottom="108dp"
         android:onClick="goto_events"
-        app:layout_constraintBottom_toTopOf="@+id/friends_button"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
         app:srcCompat="@android:drawable/ic_menu_agenda" />
 
     <ImageView
@@ -44,7 +43,7 @@
         android:layout_width="118dp"
         android:layout_height="107dp"
         app:layout_constraintEnd_toStartOf="@+id/favorites_button"
-        app:layout_constraintHorizontal_bias="0.251"
+        app:layout_constraintHorizontal_bias="0.268"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/favorites_button"
         app:srcCompat="@android:drawable/ic_menu_help" />
@@ -53,13 +52,11 @@
         android:id="@+id/favorites_button"
         android:layout_width="118dp"
         android:layout_height="107dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginRight="40dp"
-        android:layout_marginTop="76dp"
+        android:layout_marginEnd="28dp"
+        android:layout_marginRight="28dp"
         app:layout_constraintBottom_toTopOf="@+id/events_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.056"
         app:srcCompat="@android:drawable/ic_menu_compass" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

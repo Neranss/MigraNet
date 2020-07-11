@@ -25,16 +25,12 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 
-public class EventsActivity extends AppCompatActivity {
-    //TextView status_view;
+public class MyEventsActivity extends AppCompatActivity {
     LinearLayout layout;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_events);
-
-        //status_view = (TextView) findViewById(R.id.status_view);
+        setContentView(R.layout.activity_my_events);
         layout = (LinearLayout) findViewById(R.id.events);
 
 
@@ -43,9 +39,7 @@ public class EventsActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
     }
-
 
     public void find_events(View view) throws JSONException {
 
@@ -66,9 +60,6 @@ public class EventsActivity extends AppCompatActivity {
         JSONObject filter = new JSONObject();
         try {
             filter.put("user_session", Long.parseLong(session));
-            filter.put("latitude", latitude);
-            filter.put("longitude", longitude);
-            filter.put("r", 100);
         } catch (JSONException e){
             e.printStackTrace();
         }
@@ -77,7 +68,7 @@ public class EventsActivity extends AppCompatActivity {
         try{
             request.put("jsonrpc", "2.0");
             request.put("id", 777);
-            request.put("method", "action.find");
+            request.put("method", "user.get_actions");
             request.put("params",filter);
         } catch (JSONException e){
             e.printStackTrace();
@@ -172,27 +163,14 @@ public class EventsActivity extends AppCompatActivity {
 
 
     }
+    public void goto_home(View view){
+        Intent intent = new Intent(MyEventsActivity.this, MainActivity.class);
+        startActivity(intent);
 
-
+    }
     public void chose_event(View view){
         ((MigraNet)this.getApplication()).setEvent(view.getTag().toString());
-        Intent intent = new Intent(EventsActivity.this, EventInfoActivity.class);
+        Intent intent = new Intent(MyEventsActivity.this, EventInfoActivity.class);
         startActivity(intent);
-    }
-
-    public void goto_home(View view){
-        Intent intent = new Intent(EventsActivity.this, MainActivity.class);
-        startActivity(intent);
-
-    }
-    public void goto_my_events(View view){
-        Intent intent = new Intent(EventsActivity.this, MyEventsActivity.class);
-        startActivity(intent);
-
-    }
-    public void goto_add_event(View view){
-        Intent intent = new Intent(EventsActivity.this, AddEventActivity.class);
-        startActivity(intent);
-
     }
 }

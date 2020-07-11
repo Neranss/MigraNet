@@ -85,7 +85,7 @@ public class AddEventActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        status_view.setText(request.toString());
+        //status_view.setText(request.toString());
 
         //starting new request
         new Thread(new Runnable() {
@@ -146,6 +146,7 @@ public class AddEventActivity extends AppCompatActivity {
 
             }
         }).start();
+        goto_events(null);
     }
 
     public void goto_events(View view){
