@@ -120,6 +120,32 @@ class PostgreSQL:
                 stmt = sql.SQL(s).format(sql.Identifier(identifier))
                 cursor.execute(stmt)
 
+    def get_from_limit(
+        self,
+        identifier: str,
+        limit: int,
+        columns: Optional[Union[Iterable[str], Iterator[str]]] = None,
+    ):
+        with psycopg2.connect(
+            dbname=self.db_name,
+            user=self.user,
+            password=self._password,
+            host=self.db_host,
+        ) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                if columns:
+                    stmt = sql.SQL("SELECT {} FROM {} LIMIT {}").format(
+                        sql.SQL(",").join(map(sql.Identifier, columns)),
+                        sql.Identifier(identifier),
+                        sql.Literal(limit),
+                    )
+                else:
+                    stmt = sql.SQL("SELECT * FROM {} LIMIT {}").format(
+                        sql.Identifier(identifier), sql.Literal(limit)
+                    )
+                cursor.execute(stmt)
+                return cursor.fetchall()
+
 
 if __name__ == "__main__":
     import config

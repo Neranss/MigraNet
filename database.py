@@ -143,7 +143,10 @@ class NullDatabase:
         return NotImplemented
 
     def friends_find(
-        self, simple_keys: Dict[str, Any], difficult_keys: List[Dict[str, Any]]
+        self,
+        simple_keys: Dict[str, Any],
+        difficult_keys: List[Dict[str, Any]],
+        message_limit: Optional[int] = None,
     ) -> List[Dict[str, Any]]:
         return NotImplemented
 
@@ -460,8 +463,15 @@ class Database(PostgreSQLEngine):
         )
 
     def friends_find(
-        self, simple_keys: Dict[str, Any], difficult_keys: List[Dict[str, Any]]
+        self,
+        simple_keys: Dict[str, Any],
+        difficult_keys: List[Dict[str, Any]],
+        message_limit: Optional[int] = None,
     ) -> List[Dict[str, Any]]:
+        if message_limit is not None:
+            return self.get_from_limit(
+                constants.USERS_DB, message_limit, ["user_id"]
+            )
         results = []
         simple_condition = " AND ".join(
             ["%s='%s'" % (k, v) for k, v in simple_keys.items()]

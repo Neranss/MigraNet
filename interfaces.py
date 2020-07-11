@@ -266,7 +266,10 @@ class Database(Protocol):
         ...
 
     def friends_find(
-        self, simple_keys: Dict[str, Any], difficult_keys: List[Dict[str, Any]]
+        self,
+        simple_keys: Dict[str, Any],
+        difficult_keys: List[Dict[str, Any]],
+        message_limit: Optional[int] = None,
     ) -> List[Dict[str, Any]]:
         ...
 

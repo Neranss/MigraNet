@@ -287,8 +287,7 @@ def user_login_by_email(json: Dict[str, Any]) -> Dict[str, Any]:
     params = json["params"]
     user = _get_user_by_email(params["email"])
     return jsonrpc.create_json_response(
-        json, {"user_session": _user_login(user, params["password"]), 
-		"user_id": user.user_id}
+        json, {"user_session": _user_login(user, params["password"])}
     )
 
 
@@ -537,7 +536,11 @@ def friends_find(json: Dict[str, Any]) -> Dict[str, Any]:
             models.User.create_from_database(
                 _database, user_id=u_i["user_id"]
             ).convert_to_json()
-            for u_i in _database.friends_find(simple_keys, difficult_keys)
+            for u_i in _database.friends_find(
+                simple_keys,
+                difficult_keys,
+                message_limit=params.get("message_limit"),
+            )
         ],
     )
 
@@ -644,7 +647,7 @@ def action_find(json: Dict[str, Any]) -> Dict[str, Any]:
             latitude=float(params["latitude"]),
             longitude=float(params["longitude"]),
             r=float(params["r"]),
-            delta_time=params.get("delta_time"),
+            delta_time=int(params.get("delta_time")),
         )
     ]
     return jsonrpc.create_json_response(json, result)

@@ -523,6 +523,19 @@ if __name__ == "__main__":
     print(response)
     print(response.content)
 
+    print("Friends find (All)")
+    response = requests.post(
+        addr,
+        json={
+            "jsonrpc": "2.0",
+            "id": 778,
+            "method": "friends.find",
+            "params": {"user_session": admin_session, "message_limit": 16,},
+        },
+    )
+    print(response)
+    print(response.content)
+
     print("Friends find (Null)")
     response = requests.post(
         addr,
@@ -779,7 +792,6 @@ if __name__ == "__main__":
     )
     print(response)
     print(response.content)
-
     print("Find actions")
     response = requests.post(
         addr,
