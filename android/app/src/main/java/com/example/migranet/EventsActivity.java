@@ -61,12 +61,12 @@ public class EventsActivity extends AppCompatActivity {
 
         layout.removeAllViews();
 
-        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        @SuppressLint("MissingPermission") Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        final double longitude = location.getLongitude();
-        final double latitude = location.getLatitude();
-
-
+//        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+//        @SuppressLint("MissingPermission") Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+//        final double longitude = location.getLongitude();
+//        final double latitude = location.getLatitude();
+        final double longitude = 50.08;
+        final double latitude = 51.12;
 
         String session=((MigraNet)this.getApplication()).getSession();
 
