@@ -30,7 +30,9 @@ import java.util.concurrent.TimeUnit;
 public class EventInfoActivity extends AppCompatActivity {
 
     //ScheduledExecutorService ses;
-
+static Double latitude;
+static Double longitude;
+static String event_name;
     TextView name_view;
     TextView description_view;
     TextView time_view;
@@ -174,7 +176,12 @@ public class EventInfoActivity extends AppCompatActivity {
                         place_view.setText("Place:    lat "+answer.getString("latitude")+"\n long "+answer.getString("longitude"));
                         time_view.setText("Time: "+answer.getString("action_time"));
                         description_view.setText(answer.getString("description"));
+
                         chat=answer.getJSONObject("chat").getString("chat_id");
+                        latitude = Double.parseDouble(answer.getString("latitude"));
+                        longitude = Double.parseDouble(answer.getString("longitude"));
+                        event_name=answer.getString("name");
+
                         JSONArray messages = answer.getJSONObject("chat").getJSONArray("messages");
 
                         JSONArray users_json= answer.getJSONArray("users");
@@ -239,7 +246,11 @@ public class EventInfoActivity extends AppCompatActivity {
                 }
             }
         });
+
         ((MigraNet)this.getApplication()).setChat(chat);
+        ((MigraNet)this.getApplication()).setCoords(latitude,longitude);
+        ((MigraNet)this.getApplication()).setEventName(event_name);
+
         scroll_view.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -250,6 +261,10 @@ public class EventInfoActivity extends AppCompatActivity {
 
     public void goto_events(View view){
         Intent intent = new Intent(EventInfoActivity.this, EventsActivity.class);
+        startActivity(intent);
+    }
+    public void open_map(View view){
+        Intent intent = new Intent(EventInfoActivity.this, MapsActivity.class);
         startActivity(intent);
     }
 

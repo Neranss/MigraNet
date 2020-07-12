@@ -21,6 +21,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class LoginActivity extends AppCompatActivity {
     EditText email_view;
@@ -36,7 +38,14 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
         startActivity(intent);
     }
+
+    public void set_data(String session, String user_id){
+        ((MigraNet)this.getApplication()).setSession(session);
+        ((MigraNet)this.getApplication()).setUserId(user_id);
+    }
     public void login(View view) throws JSONException {
+
+
 
         String login = email_view.getText().toString();
         String password = password_view.getText().toString();
@@ -52,66 +61,30 @@ public class LoginActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        final JSONObject login_request = new JSONObject();
-        try{
-            login_request.put("jsonrpc", "2.0");
-            login_request.put("id", 777);
-            login_request.put("method", "user.login_by_email");
-            login_request.put("params",user);
-        } catch (JSONException e){
-            e.printStackTrace();
-        }
-
+        JSONRPCSender sender = new JSONRPCSender("http://81.91.176.31:9989/");
+        Future<JSONObject> result = sender.send_json("user.login_by_email", user);
 
         new Thread(new Runnable() {
             public void run() {
-                URL url = null;
-                try {
-                    url = new URL("http://81.91.176.31:9989/");
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-                HttpURLConnection urlConnection = null;
-                try {
-                    urlConnection = (HttpURLConnection) url.openConnection();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                urlConnection.setDoOutput(true);
-                try {
-                    urlConnection.setRequestMethod("POST");
-                } catch (ProtocolException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    urlConnection.connect();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+
                 try{
-                    OutputStream output_stream = urlConnection.getOutputStream();
-                    output_stream.write(login_request.toString().getBytes());
-                    output_stream.flush();
-                    output_stream.close();
+                JSONObject answer = result.get();
+                Log.v(null,"Login result "+answer.toString());
 
-
-                    BufferedReader in = new BufferedReader(
-                            new InputStreamReader(
-                                    urlConnection.getInputStream()));
-                    final String decodedString=in.readLine();
-
-                    final String response = urlConnection.getResponseMessage();
                     runOnUiThread(new Runnable(){
                         @Override
                         public void run(){
                             //status_view.setText(decodedString);
                             try {
-                                JSONObject answer = new JSONObject(decodedString);
+
                                 if (answer.has("result")){
                                     Log.v(null,answer.toString());
                                     //status_view.setText("Your user session is "+answer.getJSONObject("result").getString("user_session"));
                                     session=answer.getJSONObject("result").getString("user_session");
                                     user_id=answer.getJSONObject("result").getString("user_id");
+                                    set_data(session,user_id);
+                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                    startActivity(intent);
 
                                 } else{
                                     if (answer.has("error")) {
@@ -127,24 +100,15 @@ public class LoginActivity extends AppCompatActivity {
                     });
 
 
-                } catch (UnsupportedEncodingException e) {
+                } catch ( ExecutionException | InterruptedException e) {
                     e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    urlConnection.disconnect();
                 }
 
             }
         }).start();
 
 
-        if(session!=""){
-            ((MigraNet)this.getApplication()).setSession(session);
-            ((MigraNet)this.getApplication()).setUserId(user_id);
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-        }
+
         if (error!=""){
             status_view.setText(error);
         }
