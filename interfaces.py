@@ -1,7 +1,7 @@
 from typing import Optional, Dict, Any, List
 from typing_extensions import Protocol, runtime_checkable
 
-from constants import Roles, Status
+from constants import Roles, Status, ChatType
 
 
 @runtime_checkable
@@ -17,6 +17,9 @@ class User(Protocol):
     points: int
     status: Status
     patronymic: Optional[str]
+    is_help_near_member: bool
+    latitude: Optional[float]
+    longitude: Optional[float]
 
     @classmethod
     def create_from_database(
@@ -60,6 +63,7 @@ class Chat(Protocol):
     chat_name: str
     owner: User
     users: List[User]
+    chat_type: ChatType
     messages: Optional[List["Message"]] = None
 
     @classmethod
@@ -75,7 +79,12 @@ class Chat(Protocol):
 
     @classmethod
     def create_in_database(
-        cls, database: "Database", owner: User, chat_name: str, *users: User
+        cls,
+        database: "Database",
+        chat_type: ChatType,
+        owner: User,
+        chat_name: str,
+        *users: User
     ):
         ...
 
@@ -190,13 +199,11 @@ class Database(Protocol):
     def user_get_blocked_at(self, user_id: int) -> List[Dict[str, Any]]:
         ...
 
-    def single_chat_ids_get_by_user_id(
-        self, user_id: int
-    ) -> List[Dict[str, Any]]:
+    def chat_ids_get_by_user_id(self, user_id: int) -> List[Dict[str, Any]]:
         ...
 
     def chat_create(
-        self, owner: int, chat_name: str, *user_ids: int
+        self, owner: int, chat_type: ChatType, chat_name: str, *user_ids: int
     ) -> List[Dict[str, Any]]:
         ...
 

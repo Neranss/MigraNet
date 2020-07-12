@@ -327,7 +327,10 @@ def single_chat_create(json: Dict[str, Any]) -> Dict[str, Any]:
             json, {"chat_id": current_chat_id[0]}
         )
     chat_id = _database.chat_create(
-        from_user.user_id, params["chat_name"], to_user.user_id
+        from_user.user_id,
+        constants.ChatType.SINGLE_CHAT,
+        params["chat_name"],
+        to_user.user_id,
     )[0]["chat_id"]
     return jsonrpc.create_json_response(json, {"chat_id": chat_id})
 
@@ -343,7 +346,10 @@ def multi_chat_create(json: Dict[str, Any]) -> Dict[str, Any]:
     block_list = _get_blocked_user_ids_at(from_user)
     _check_blocks(from_user, block_list)
     chat_id = _database.chat_create(
-        from_user.user_id, params["chat_name"], *params["user_ids"]
+        from_user.user_id,
+        constants.ChatType.MULTI_CHAT,
+        params["chat_name"],
+        *params["user_ids"],
     )[0]["chat_id"]
     return jsonrpc.create_json_response(json, {"chat_id": chat_id})
 
@@ -393,7 +399,7 @@ def single_chats_get_by_user_id(json: Dict[str, Any]) -> Dict[str, Any]:
     session = int(json["params"]["user_session"])
     user = _get_user_by_session(session)
     chats = []
-    for c_i in _database.single_chat_ids_get_by_user_id(user.user_id):
+    for c_i in _database.chat_ids_get_by_user_id(user.user_id):
         c = _get_chat(c_i["chat_id"], message_limit=1)
         chats.append(c.convert_to_json())
     return jsonrpc.create_json_response(json, chats)
