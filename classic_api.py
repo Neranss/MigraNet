@@ -287,10 +287,11 @@ def user_login_by_email(json: Dict[str, Any]) -> Dict[str, Any]:
     params = json["params"]
     user = _get_user_by_email(params["email"])
     return jsonrpc.create_json_response(
-        json, {
+        json,
+        {
             "user_session": _user_login(user, params["password"]),
             "user_id": user.user_id,
-            },
+        },
     )
 
 
@@ -542,7 +543,7 @@ def friends_find(json: Dict[str, Any]) -> Dict[str, Any]:
             for u_i in _database.friends_find(
                 simple_keys,
                 difficult_keys,
-                message_limit=params.get("message_limit"),
+                message_limit=params.get("user_limit"),
             )
         ],
     )
@@ -654,3 +655,11 @@ def action_find(json: Dict[str, Any]) -> Dict[str, Any]:
         )
     ]
     return jsonrpc.create_json_response(json, result)
+
+
+@jsonrpc.Dispatcher.register("user.set_info", [["user_session"]])
+def user_set_info(json: Dict[str, Any]) -> Dict[str, Any]:
+    params = json["params"]
+    user = _get_user_by_session(int(params["user_session"]))
+    _database.user_set_info(user.user_id, patronymic=params.get("patronymic"))
+    return jsonrpc.create_json_response(json, None)
