@@ -62,22 +62,19 @@ class NullDatabase:
     def user_get_blocked_at(self, user_id: int) -> List[Dict[str, Any]]:
         return NotImplemented
 
-    def single_chat_ids_get_by_user_id(
-        self, user_id: int
-    ) -> List[Dict[str, Any]]:
+    def chat_ids_get_by_user_id(self, user_id: int) -> List[Dict[str, Any]]:
         return NotImplemented
 
     def chat_create(
-        self, owner: int, chat_name: str, *user_ids: int
+        self,
+        owner: int,
+        chat_type: constants.ChatType,
+        chat_name: str,
+        *user_ids: int
     ) -> List[Dict[str, Any]]:
         return NotImplemented
 
     def single_chat_get_by_chat_id(self, chat_id: int) -> List[Dict[str, Any]]:
-        return NotImplemented
-
-    def single_chat_get_by_users_ids(
-        self, source_user_id: int, target_user_id: int
-    ) -> List[Dict[str, Any]]:
         return NotImplemented
 
     def single_chat_delete_by_user_id_and_chat_id(
@@ -293,49 +290,64 @@ class Database(PostgreSQLEngine):
             ["source_user_id"],
         )
 
-    def single_chat_ids_get_by_user_id(
-        self, user_id: int
-    ) -> List[Dict[str, Any]]:
+    def chat_ids_get_by_user_id(self, user_id: int) -> List[Dict[str, Any]]:
         return self.get_from_where(
-            constants.SINGLE_CHATS_DB, "user_id=%d" % user_id, ["chat_id"]
+            constants.CHATS_DB, "user_id=%d" % user_id, ["chat_id"]
         )
 
     def chat_create(
-        self, owner: int, chat_name: str, *user_ids: int
+        self,
+        owner: int,
+        chat_type: constants.ChatType,
+        chat_name: str,
+        *user_ids: int
     ) -> List[Dict[str, Any]]:
         while True:
             chat_id = randint(1, MAX_RANDOM_VALUE)
             if not self.get_from_where(
-                constants.SINGLE_CHAT_IDS_DB, "chat_id=%s" % chat_id
+                constants.CHAT_IDS_DB, "chat_id=%s" % chat_id
             ):
                 break
         self.insert_value(
-            constants.SINGLE_CHAT_IDS_DB,
-            {"chat_id": chat_id, "chat_name": chat_name, "owner": owner},
+            constants.CHAT_IDS_DB,
+            {
+                "chat_id": chat_id,
+                "chat_name": chat_name,
+                "owner": owner,
+                "chat_type": int(chat_type),
+            },
         )
         data = [{"chat_id": chat_id, "user_id": owner}]
         for u_d in user_ids:
             data.append({"chat_id": chat_id, "user_id": u_d})
-        self.mass_insert_values(constants.SINGLE_CHATS_DB, data)
+        self.mass_insert_values(constants.CHATS_DB, data)
         return [{"chat_id": chat_id}]
 
     def single_chat_get_by_chat_id(self, chat_id: int) -> List[Dict[str, Any]]:
-        return self.get_from_where(
-            constants.SINGLE_CHATS_DB, "chat_id=%d" % chat_id
-        )
+        return self.get_from_where(constants.CHATS_DB, "chat_id=%d" % chat_id)
 
     def single_chats_get_by_users_id(
         self, user_id: int
     ) -> List[Dict[str, Any]]:
-        return self.get_from_where(
-            constants.SINGLE_CHATS_DB, "user_id=%d" % user_id, ["chat_id"],
+        chats = self.get_from_where(
+            constants.CHATS_DB, "user_id=%d" % user_id, ["chat_id"],
         )
+        result = []
+        for c in chats:
+            chat_ids = self.get_from_where(
+                constants.CHAT_IDS_DB,
+                "chat_id=%d AND chat_type=%d"
+                % (c["chat_id"], int(constants.ChatType.SINGLE_CHAT)),
+            )
+            if chat_ids:
+                result.append(c)
+        return result
 
     def single_chat_delete_by_user_id_and_chat_id(
         self, chat_id: int, user_id: int
     ) -> None:
         self.delete_from_where(
-            constants.SINGLE_CHATS_DB,
+            constants.CHATS_DB,
             "user_id=%d AND chat_id=%d" % (user_id, chat_id),
         )
 
@@ -343,14 +355,14 @@ class Database(PostgreSQLEngine):
         self, chat_id: int
     ) -> List[Dict[str, Any]]:
         return self.get_from_where(
-            constants.SINGLE_CHAT_IDS_DB, "chat_id=%d" % chat_id
+            constants.CHAT_IDS_DB, "chat_id=%d" % chat_id
         )
 
     def singe_chat_send_message(
         self, chat_id: int, from_user_id: int, message: str
     ) -> None:
         self.insert_value(
-            constants.SINGLE_CHAT_MESSAGES_DB,
+            constants.CHAT_MESSAGES_DB,
             {
                 "chat_id": chat_id,
                 "from_user_id": from_user_id,
@@ -375,8 +387,7 @@ class Database(PostgreSQLEngine):
         if time_to is not None:
             condition %= "%s AND time <= {}".format(time_to)
         return self.get_from_where(
-            constants.SINGLE_CHAT_MESSAGES_DB,
-            condition % ("chat_id=%d" % chat_id),
+            constants.CHAT_MESSAGES_DB, condition % ("chat_id=%d" % chat_id),
         )
 
     def friends_get_all_ids_by_user_id(
@@ -517,7 +528,9 @@ class Database(PostgreSQLEngine):
                 constants.ACTIONS_DB, "action_id=%s" % action_id
             ):
                 break
-        chat_id = self.chat_create(owner, name, *users_ids)[0][
+        chat_id = self.chat_create(
+            owner, constants.ChatType.MULTI_CHAT, name, *users_ids
+        )[0][
             "chat_id"
         ]  # Careful
         self.insert_value(
@@ -595,7 +608,7 @@ class Database(PostgreSQLEngine):
 
     def user_add_to_chat(self, user_id: int, chat_id: int) -> None:
         self.insert_value(
-            constants.SINGLE_CHATS_DB, {"user_id": user_id, "chat_id": chat_id}
+            constants.CHATS_DB, {"user_id": user_id, "chat_id": chat_id}
         )
 
     def user_leave_action(self, user_id: int, action_id: int) -> None:
@@ -606,7 +619,7 @@ class Database(PostgreSQLEngine):
 
     def user_leave_chat(self, user_id: int, chat_id: int) -> None:
         self.delete_from_where(
-            constants.SINGLE_CHATS_DB,
+            constants.CHATS_DB,
             "user_id=%d AND chat_id=%d" % (user_id, chat_id),
         )
 

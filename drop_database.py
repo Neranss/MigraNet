@@ -10,7 +10,7 @@ def main():
                           password=config.DB_PASSWORD, host=config.DB_HOST) as conn:
         with conn.cursor() as cursor:
             cursor.execute("DROP TABLE user_sessions")
-            cursor.execute("DROP TABLE geolocations")
+            cursor.execute("DROP TABLE geolocation")
             cursor.execute("DROP TABLE chat_messages;")
             stmt = sql.SQL("DROP TABLE chats;")
             cursor.execute(stmt)

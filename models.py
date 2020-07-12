@@ -22,6 +22,9 @@ class User:
     points: int
     status: constants.Status
     patronymic: Optional[str] = None
+    is_help_near_member: bool = False
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
     @classmethod
     def create_from_database(
@@ -132,6 +135,7 @@ class Chat:
     chat_name: str
     owner: interfaces.User
     users: List[interfaces.User]
+    chat_type: constants.ChatType
     messages: Optional[List[interfaces.Message]] = None
 
     def __post_init__(self):
@@ -163,6 +167,7 @@ class Chat:
             meta_data["chat_name"],
             owner,
             users,
+            meta_data["chat_type"],
             [
                 Message(
                     chat_id=m["chat_id"],
@@ -179,19 +184,21 @@ class Chat:
     def create_in_database(
         cls,
         database: interfaces.Database,
+        chat_type: constants.ChatType,
         owner: interfaces.User,
         chat_name: str,
         *users: interfaces.User
     ):
         chat_id = database.chat_create(
-            owner.user_id, chat_name, *[u.user_id for u in users]
+            owner.user_id, chat_type, chat_name, *[u.user_id for u in users]
         )[0]["chat_id"]
-        return cls(chat_id, chat_name, owner, list(users), [])
+        return cls(chat_id, chat_name, owner, list(users), chat_type, [])
 
     def convert_to_json(self) -> Dict[str, Any]:
         self.messages = cast(List[interfaces.Message], self.messages)
         return {
             "chat_id": self.chat_id,
+            "chat_type": int(self.chat_type),
             "owner": self.owner.user_id,
             "users": [u.user_id for u in self.users],
             "messages": [m.convert_to_json() for m in self.messages],
@@ -243,7 +250,7 @@ class Action:
                 User.create_from_database(database, user_id=u_i["user_id"])
             )
         data["chat"] = Chat.create_from_database(
-            database, chat_id=raw_data["chat_id"], message_limit=1
+            database, chat_id=raw_data["chat_id"]
         )  # TODO: Fix bug
         return cls(**data)
 
