@@ -506,7 +506,7 @@ def friends_get_friend_requests(json: Dict[str, Any]) -> Dict[str, Any]:
     return jsonrpc.create_json_response(
         json,
         {
-            "frined_requests": [
+            "friend_requests": [
                 models.User.create_from_database(
                     _database, u_i
                 ).convert_to_json()

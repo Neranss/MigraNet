@@ -146,6 +146,34 @@ class PostgreSQL:
                 cursor.execute(stmt)
                 return cursor.fetchall()
 
+    def update_set_where(
+        self,
+        identifier: str,
+        data: Dict[str, Any],
+        condition: Optional[str] = None,
+    ) -> None:
+        with psycopg2.connect(
+            dbname=self.db_name,
+            user=self.user,
+            password=self._password,
+            host=self.db_host,
+        ) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                sql_data: List[sql.Composed] = []
+                for k, v in data.items():
+                    sql_data.append(
+                        sql.SQL("{}={}").format(
+                            sql.Identifier(k), sql.Literal(v)
+                        )
+                    )
+                stmt = sql.SQL(
+                    "UPDATE {} SET {} %s"
+                    % ("" if condition is None else "WHERE %s" % condition)
+                ).format(
+                    sql.Identifier(identifier), sql.SQL(",").join(sql_data),
+                )
+                cursor.execute(stmt)
+
 
 if __name__ == "__main__":
     import config

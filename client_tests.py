@@ -5,6 +5,7 @@ import requests
 if __name__ == "__main__":
     addr = "http://127.0.0.1:8000"
     # addr = "http://81.91.176.31:9989"
+
     print("Create user")
     response = requests.post(
         addr,
@@ -824,6 +825,45 @@ if __name__ == "__main__":
                 "r": 10,
                 "delta_time": 0,
             },
+        },
+    )
+    print(response)
+    print(response.content)
+
+    print("Get short info")
+    response = requests.post(
+        addr,
+        json={
+            "jsonrpc": "2.0",
+            "id": 777,
+            "method": "user.get_short_data",
+            "params": {"user_session": user_session},
+        },
+    )
+    print(response)
+    print(response.content)
+
+    print("Get short info")
+    response = requests.post(
+        addr,
+        json={
+            "jsonrpc": "2.0",
+            "id": 777,
+            "method": "user.set_info",
+            "params": {"user_session": user_session, "patronymic": "Hello"},
+        },
+    )
+    print(response)
+    print(response.content)
+
+    print("Get short info")
+    response = requests.post(
+        addr,
+        json={
+            "jsonrpc": "2.0",
+            "id": 777,
+            "method": "user.get_short_data",
+            "params": {"user_session": user_session},
         },
     )
     print(response)

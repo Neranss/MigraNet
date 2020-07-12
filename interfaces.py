@@ -319,3 +319,8 @@ class Database(Protocol):
 
     def user_leave_chat(self, user_id: int, chat_id: int) -> None:
         ...
+
+    def user_set_info(
+        self, user_id: int, patronymic: Optional[str] = None
+    ) -> None:
+        ...

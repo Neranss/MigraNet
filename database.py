@@ -197,6 +197,11 @@ class NullDatabase:
     def user_leave_chat(self, user_id: int, chat_id: int) -> None:
         return NotImplemented
 
+    def user_set_info(
+        self, user_id: int, patronymic: Optional[str] = None
+    ) -> None:
+        return NotImplemented
+
 
 class Database(PostgreSQLEngine):
     def user_get_id_by_phone(self, phone: str) -> List[Dict[str, Any]]:
@@ -604,6 +609,16 @@ class Database(PostgreSQLEngine):
             constants.SINGLE_CHATS_DB,
             "user_id=%d AND chat_id=%d" % (user_id, chat_id),
         )
+
+    def user_set_info(
+        self, user_id: int, patronymic: Optional[str] = None
+    ) -> None:
+        if patronymic is not None:
+            self.update_set_where(
+                constants.USERS_DB,
+                {"patronymic": patronymic},
+                "user_id=%d" % user_id,
+            )
 
 
 if __name__ == "__main__":
